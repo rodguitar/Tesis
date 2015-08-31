@@ -1,0 +1,120 @@
+﻿Version=4.3
+IconFile=
+NumberOfModules=0
+Build1=Default,b4a.example
+DoNotOverwriteManifest=False
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+NumberOfFiles=1
+File1=Principal.bal
+NumberOfLibraries=3
+Library1=core
+Library2=ioio
+Library3=ioiolib
+@EndOfDesignText@
+#Region  Project Attributes 
+	' Experiencia 6: IOIO-LED RGB
+	#ApplicationLabel: Experiencia 6
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: true
+	#IncludeTitle: False
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+
+	Dim YOYO As IOIO
+	Dim pin1_Azul As DigitalOutput
+	Dim pin2_Verde As DigitalOutput
+	Dim pin3_Rojo As DigitalOutput
+	
+	
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+
+	Private ToggleButton1 As ToggleButton
+	Private ToggleButton2 As ToggleButton
+	Private ToggleButton3 As ToggleButton
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	Activity.LoadLayout("Principal")
+	IOIOConnect
+	'ToggleButton1.Color=Colors.Blue
+	ToggleButton1.TextColor=Colors.Blue
+	'ToggleButton2.Color=Colors.Green
+	ToggleButton2.TextColor=Colors.RGB(37,138,1)
+	'ToggleButton3.Color=Colors.Red
+	ToggleButton3.TextColor=Colors.Red
+	
+	
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+	If UserClosed Then
+		IOIOClose
+		ExitApplication
+	End If
+	
+End Sub
+
+Sub IOIOConnect
+	Try
+		YOYO.Initialize
+		YOYO.WaitForConnect
+		pin1_Azul= YOYO.OpenDigitalOutput(1,pin1_Azul.OP_NORMAL,False)
+		pin2_Verde= YOYO.OpenDigitalOutput(2,pin2_Verde.OP_NORMAL,False)
+		pin3_Rojo= YOYO.OpenDigitalOutput(3,pin3_Rojo.OP_NORMAL,False)
+		
+	Catch
+		Log("YOYO Exception: "& LastException.Message)
+	End Try
+End Sub
+
+Sub IOIOClose
+	Try
+		pin1_Azul.Close
+		YOYO.Disconnect
+		YOYO.WaitForDisconnect
+		
+	Catch
+		Log("YOYO Close Exception: "& LastException.Message)
+	End Try	
+End Sub
+
+Sub ToggleButton1_CheckedChange(Checked As Boolean)
+	If ToggleButton1.Checked Then
+		pin1_Azul.Write(True)
+	Else
+		pin1_Azul.Write(False)
+	End If
+End Sub
+Sub ToggleButton2_CheckedChange(Checked As Boolean)
+	If ToggleButton2.Checked Then
+		pin2_Verde.Write(True)
+	Else
+		pin2_Verde.Write(False)
+	End If
+End Sub
+Sub ToggleButton3_CheckedChange(Checked As Boolean)
+	If ToggleButton3.Checked Then
+		pin3_Rojo.Write(True)
+	Else
+		pin3_Rojo.Write(False)
+	End If	
+End Sub

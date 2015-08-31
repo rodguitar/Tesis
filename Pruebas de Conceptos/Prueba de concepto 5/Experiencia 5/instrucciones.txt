@@ -1,0 +1,3 @@
+- Se enseña a utilizar el GPS para velocidad , ubicacion (latitud, longitud) y precisión.
+- Modificar la aplicación para almacenar la latitud y la longitud que proporciona el GPS en el momento
+de guardar la reseña en la BD.

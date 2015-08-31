@@ -1,0 +1,8 @@
+-Ejecutar el "Codigo Propuesto 1", observar que realiza y como funcionan los gráficos dentro el objeto TabHost.
+-Crear una nueva aplicación en donde se utilice la Experiencia 1 y el "Codigo Propuesto 1" del desafio. La cual debe tener
+dos pestañas creadas mediante Tabhost, la primera pestaña debe desplegar la experiencia 1 y la segunda pestaña
+debe contener un gráfico que muestre un tipo de resumen de los datos almacenados que ha ingresado el usuario.
+
+					GESTOS:
+-Observar el "Codigo Propuesto 2" donde muestra los distintos tipos de Gestos que se pueden realizar sobre la pantalla. 
+-Finalmente utilice un "Gesto" para que automaticamente se abra la pestaña del Resumen de datos que realizó anteriormente.

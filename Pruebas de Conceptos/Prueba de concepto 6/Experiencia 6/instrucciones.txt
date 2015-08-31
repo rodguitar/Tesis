@@ -1,0 +1,3 @@
+- Cree una nueva aplicación e implemente sobre un layout que contenga tres objetos ToggleButton (crear desde Designer), 
+cada uno correspondiente a un color del LED RGB que servirá como interruptores de encedido y apagado. 
+Observe y utilice el "Codigo Propuesto" como ejemplo (el esquema del circuito esta en la carpeta "Circuito LED").

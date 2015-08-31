@@ -1,0 +1,5 @@
+- Modificar el Módulo de la base de datos para agregar los campos "comentario_texto" y "nombre_voz" al crear la tabla.
+- Modificar el el Sub de insertar reseñas agregando los campos anteriores.
+- Agregar la funcionalidad de ingreso de texto como un comentario al momento de presionar la opción "Texto" del SpinnerTipo 
+con la ayuda de el Evento ItemClick en el Designer(Generate->ItemClick). Puede utilizar inputDialog de la prueba de concepto anterior.
+- Agregar la funcionalidad de ingreso de audio al momento de presionar la opción "Voz" del SpinnerTipo. Vea el ejemplo del Codigo Propuesto.

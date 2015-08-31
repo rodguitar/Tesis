@@ -1,0 +1,213 @@
+﻿Version=4.3
+IconFile=
+NumberOfModules=2
+Module1=Charts
+Module2=DBApp
+Build1=Default,b4a.example
+DoNotOverwriteManifest=False
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+NumberOfFiles=1
+File1=layout1.bal
+NumberOfLibraries=3
+Library1=core
+Library2=gesturedetector
+Library3=sql
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Experiencia 2
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: portrait
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: true
+	#IncludeTitle: True
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+	Dim FontSize = 12 As Float
+	Dim MaxVal, MinVal, ScaleMin, ScaleMax, ScaleInterval As Double
+	Type Ingreso (Titulo As String, Nota As Double, Tipo As String) 
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+	Dim GD As GestureDetector
+	Dim pnlPie As Panel
+	Dim TabHost1 As TabHost
+	
+	Dim ImageView1 As ImageView
+	Dim legend As Bitmap
+	
+	Private SpinnerNota As Spinner
+	Private ListViewNotas As ListView
+	
+	Dim listaIngresos As List
+	
+	
+	Private EditTextTitulo As EditText
+
+	Private SpinnerTipo As Spinner
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	If FirstTime=True Then 
+		DBApp.CreaBD
+	End If
+	GD.SetOnGestureListener(Activity, "Gesture")
+	
+	TabHost1.Initialize("TabHost1")
+	
+	'Activity.LoadLayout("Layout1")
+	Activity.AddView(TabHost1, 0, 0, 100%x, 100%y)
+	TabHost1.AddTab("Ingreso de Reseñas","Layout1")
+	Activity.Title="Desafío 1"
+	
+	listaIngresos.Initialize
+	
+	LLenaSpinnerNota
+	SpinnerTipo.Add("Solo Título")
+	SpinnerTipo.Add("Texto")
+	SpinnerTipo.Add("Voz")
+	TabGraficoPie
+	
+	
+	
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+Sub TabGraficoPie
+	Dim p As Panel
+	p.Initialize("")
+	pnlPie.Initialize("pnlPie")
+	p.AddView(pnlPie, 0, 0, 100%x, 100%y - 100dip)
+	TabHost1.AddTab2("Resumen", p)
+	
+End Sub
+
+Sub addValorGrafico(datos As Map)
+	'Add the items. The last parameter is the color. Passing 0 will make it a random color.
+	Dim PD As PieData 
+	PD.Initialize
+	PD.Target = pnlPie 'Set the target view
+	
+	For Each k As String In datos.Keys
+		Charts.AddPieItem(PD, k, datos.Get(k), 0)
+	Next
+	
+	PD.GapDegrees = 0 'Total size of gaps between slices. Set to 0 for no gaps.
+	PD.LegendBackColor = Colors.ARGB(150, 100, 100, 100) 'The background color of the legend bitmap.
+	
+	'This call draws the pie.
+	'PD - The pie data
+	'Colors.Gray - The view's background color
+	'True - Create a legend bitmap.
+	legend = Charts.DrawPie(PD, Colors.Gray, True)
+	
+	If ImageView1.IsInitialized=False Then ImageView1.Initialize("")
+	ImageView1.RemoveView
+	ImageView1.SetBackgroundImage(legend)
+	
+	pnlPie.AddView(ImageView1, 10dip, 10dip, legend.Width, legend.Height)
+End Sub
+
+Sub CalculaEstadistica(lista As List) As Map
+	Dim ObjetoActual As Ingreso
+	Dim Mapa As Map
+	Dim suma As Int = 0
+	
+	For i=0 To 2 
+		For j=0 To listaIngresos.Size-1 
+			ObjetoActual=lista.Get(j)
+			Select i
+				Case "0" 
+					If ObjetoActual.Tipo="Solo Título" Then 
+						suma=suma+1 
+					End If
+				
+				Case "1"
+					If ObjetoActual.Tipo="Texto" Then 
+						suma=suma+1
+					End If
+				
+				Case "2"
+					If ObjetoActual.Tipo="Voz" Then 
+						suma=suma+1
+					End If
+				
+			End Select
+		Next
+		
+		If Mapa.IsInitialized=False Then Mapa.Initialize
+		If i=0 Then Mapa.Put("Solo Título",suma)
+		If i=1 Then Mapa.Put("Texto",suma)
+		If i=2 Then Mapa.Put("Voz",suma)
+
+		suma=0
+	Next
+	
+	Return Mapa
+End Sub
+
+Sub LLenaSpinnerNota
+	Dim I As Double=7.0 
+	Do While I>=1.0
+		SpinnerNota.add(Round2(I,1))
+		I=I-0.1
+	Loop
+End Sub
+
+Sub ButtonIngresar_Click
+
+	
+	If EditTextTitulo.Text.Trim="" Then
+		Msgbox("Falta ingresar el Título","Error")
+	Else
+		'Insercion de los datos en la tabla de reseñas REVIEW de la BD.
+		DBApp.InsertaReview(EditTextTitulo.Text,SpinnerNota.SelectedItem,SpinnerTipo.SelectedItem)
+		'********************************************************************************************
+		
+		Dim ObjetoIngreso As Ingreso
+		ObjetoIngreso.Initialize
+		ObjetoIngreso.Titulo=EditTextTitulo.Text
+		ObjetoIngreso.Nota=SpinnerNota.SelectedItem
+		ObjetoIngreso.Tipo=SpinnerTipo.SelectedItem
+		
+		listaIngresos.Add(ObjetoIngreso)
+		
+		addValorGrafico(CalculaEstadistica(listaIngresos))
+		
+		ListViewNotas.AddTwoLines(ObjetoIngreso.Nota, ObjetoIngreso.Titulo & " ("& ObjetoIngreso.Tipo &")")
+		Msgbox("Has ingresado tu Reseña correctamente","Exito")
+	End If
+	
+End Sub
+
+Sub Gesture_onFling(velocityX As Float, velocityY As Float, MotionEvent1 As Object, MotionEvent2 As Object)
+	Log("   onFling velocityX = " & velocityX & ", velocityY = " & velocityY & ", ev1 = " & MotionEvent1 & ", ev2 = " & MotionEvent2)
+	If velocityX<0 Then
+		TabHost1.CurrentTab=(TabHost1.CurrentTab+1) Mod TabHost1.TabCount
+	Else
+		If TabHost1.CurrentTab=0 Then 
+			TabHost1.CurrentTab=TabHost1.TabCount-1
+		Else
+			TabHost1.CurrentTab=(TabHost1.CurrentTab-1) Mod TabHost1.TabCount
+		End If
+		
+	End If
+	
+End Sub

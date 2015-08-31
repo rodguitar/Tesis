@@ -1,0 +1,73 @@
+﻿Version=3.82
+IconFile=
+NumberOfModules=0
+Build1=Default,com.rootsoft.audiorecorder
+DoNotOverwriteManifest=False
+ManifestCode=
+NumberOfFiles=0
+NumberOfLibraries=2
+Library1=audiorecorder
+Library2=core
+@EndOfDesignText@
+#Region Module Attributes
+	#FullScreen: False
+	#IncludeTitle: True
+	#ApplicationLabel: AudioRecorder
+	#VersionCode: 1
+	#VersionName: 1.00
+	#SupportedOrientations: portrait
+	#CanInstallToExternalStorage: False
+#End Region
+
+'Activity module
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+	Dim AR As AudioRecorder
+
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+
+	If FirstTime Then
+		AR.Initialize()
+	End If
+
+	Activity.AddMenuItem("Start","mnuStart")
+	Activity.AddMenuItem("Stop","mnuStop")
+	ToastMessageShow("Directorio de grabacion:"&CRLF&File.DirInternal,True)
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+Sub mnuStart_Click
+	AR.AudioSource = AR.AS_MIC
+	AR.OutputFormat = AR.OF_THREE_GPP
+	AR.AudioEncoder = AR.AE_AMR_NB
+	AR.setOutputFile(File.DirDefaultExternal,"MiGrabacion.wav")
+	AR.prepare()
+
+	ToastMessageShow("Grabando...",False)
+	AR.Start
+
+End Sub
+
+Sub mnuStop_Click
+ToastMessageShow("Grabación detenida.",False)
+AR.Stop
+End Sub
+
+
+

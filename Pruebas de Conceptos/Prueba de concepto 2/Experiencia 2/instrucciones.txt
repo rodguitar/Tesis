@@ -1,0 +1,7 @@
+-Crear un nuevo Modulo de Código, que tendrá todo lo referente a la BD (Project->Add New Module->Code Module).
+-Activar libreria "SQL"
+-En Process_Globals crear una variable de tipo "SQL", que será el nombre de la base de datos.
+-Crear un método (Sub) para inicializar la base de datos, crea la tabla y campos correspondientes.
+-Crear un método (Sub) para insertar una tupla en la tabla.
+-Utilizar los metodos creados anteriormente en el Main, para iniciar la BD y luego almacenar toda la información 
+que ingresa el usuario al presionar el Button.

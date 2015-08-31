@@ -1,0 +1,117 @@
+﻿Version=4.3
+IconFile=
+NumberOfModules=0
+Build1=Default,b4a.example
+DoNotOverwriteManifest=False
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+NumberOfFiles=1
+File1=layoutPot.bal
+NumberOfLibraries=5
+Library1=core
+Library2=ioio
+Library3=ioiolib
+Library4=customprogressdialog
+Library5=bignumbers
+@EndOfDesignText@
+#Region  Project Attributes 
+	'Desafío 6: IOIO-Potenciometro- LED RGB
+	#ApplicationLabel: Desafio 6
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: True
+	#IncludeTitle: false
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+
+	Dim YOYO As IOIO
+	Dim SPI As SpiMaster 'SPI: Serial Peripheral Interface
+	
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+	
+	Dim wBuffer(2) As Byte
+	Dim rBuffer(2) As Byte
+	Private SeekBar1 As SeekBar
+	
+	Private LabelValorEscritura As Label
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	Activity.LoadLayout("layoutPot")
+	IOIOConnect_Potenciometro
+	configuracionSPI_pot
+
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+	If UserClosed Then
+		IOIOClose_Potenciometro
+		ExitApplication
+	End If
+	
+End Sub
+
+Sub IOIOConnect_Potenciometro
+	Try	
+		YOYO.Initialize
+		YOYO.WaitForConnect
+		
+	Catch
+		Log("YOYO Exception: "& LastException.Message)
+	End Try
+End Sub
+
+Sub IOIOClose_Potenciometro
+	Try
+
+		SPI.Close
+		YOYO.Disconnect
+		YOYO.WaitForDisconnect
+		
+	Catch
+		Log("YOYO Close Exception: "& LastException.Message)
+	End Try	
+End Sub
+
+Sub configuracionSPI_pot
+	Dim slavepins() As Int
+	'slavepins = Array As Int(4, 5, 6)
+	slavepins = Array As Int(7)
+	Dim slavemodes() As Object
+	'slavemodes = Array As Object( SPI.OP_NORMAL, SPI.OP_NORMAL, SPI.OP_NORMAL)
+	slavemodes = Array As Object( SPI.OP_NORMAL)
+	SPI=YOYO.OpenSpiMaster(9, SPI.IP_PULL_UP, 3, SPI.OP_NORMAL, 6, SPI.OP_NORMAL, slavepins, slavemodes, SPI.RATE_1M, False, False)
+	'OpenSpiMaster(int misopin, DigitalInput.Spec.Mode misomode, int mosipin, DigitalOutput.Spec.Mode mosimode, int clkpin, DigitalOutput.Spec.Mode clkmode, int[] slaveselectpins, Object[] slaveselectmodes, SpiMaster.Rate rate, boolean invertClk, boolean sampleOnTrailing)	
+End Sub
+
+Sub SeekBar1_ValueChanged (Value As Int, UserChanged As Boolean)
+	LabelValorEscritura.Text=Value
+	wBuffer(0)=0x00 
+	wBuffer(1)=Value
+	
+	Log(Value&": "&Bit.ToHexString(Value))
+	
+	If SPI.IsInitialized Then 
+		SPI.WriteRead(0,wBuffer,wBuffer.Length,2,Null,0)
+		'WriteRead(el indice del pin esclavo de la matriz slavepins,arreglo de escritura,tamaño escritura,total tamaño arreglo escritura+lectura,arreglo lectura,total tamaño lectura)
+	
+	
+	End If
+End Sub

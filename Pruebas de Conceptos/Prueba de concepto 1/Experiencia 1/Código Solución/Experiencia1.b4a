@@ -1,0 +1,98 @@
+﻿Version=5.02
+NumberOfModules=0
+Build1=experiencia1,b4a.experiencia1
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+IconFile=
+NumberOfFiles=1
+File1=Layout1.bal
+NumberOfLibraries=1
+Library1=core
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Experiencia 1
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: portrait
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: true
+	#IncludeTitle: True
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+	Type Ingreso (Titulo As String, Nota As Double, Tipo As String) 
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+
+	Private SpinnerNota As Spinner
+	Private SpinnerTipo As Spinner
+	
+	Private ListViewNotas As ListView
+	
+	Dim listaIngresos As List
+		
+	Private EditTextTitulo As EditText
+	Private LabelIngresaNT As Label
+	Private LabelIngresaTitulo As Label
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	Activity.LoadLayout("Layout1")
+	Activity.Title="Experiencia 1"
+	
+	listaIngresos.Initialize
+	
+	LLenaSpinnerNota
+	LLenaSpinnerTipo
+	
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+Sub LLenaSpinnerTipo
+	SpinnerTipo.Add("Solo Título")
+	SpinnerTipo.Add("Texto")
+	SpinnerTipo.Add("Voz")
+End Sub
+
+Sub LLenaSpinnerNota
+	Dim i As Double=7.0 
+	Do While i>=1.0
+		SpinnerNota.Add(Round2(i,1))
+		i=i-0.1
+	Loop
+End Sub
+
+Sub ButtonIngresar_Click
+	
+	If EditTextTitulo.Text.Trim="" Then
+		Msgbox("Falta ingresar el Título","Error")
+	Else
+		Dim Reseña As Ingreso
+		Reseña.Initialize
+		Reseña.Titulo=EditTextTitulo.Text
+		Reseña.Nota=SpinnerNota.SelectedItem
+		Reseña.Tipo=SpinnerTipo.SelectedItem
+		
+		listaIngresos.Add(Reseña)
+		
+		ListViewNotas.AddTwoLines(Reseña.Nota, Reseña.Titulo & " ("& Reseña.Tipo &")")
+		Msgbox("Has ingresado tu Reseña correctamente","Exito")
+	End If
+	
+End Sub

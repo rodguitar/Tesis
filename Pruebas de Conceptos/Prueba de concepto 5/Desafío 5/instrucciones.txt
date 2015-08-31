@@ -1,0 +1,3 @@
+- Crear un objeto WebView y un Spinner en una cuarta pestaña del objeto TabHost, de tal manera que al seleccionar
+una reseña del Spinner se cargará en GoogleMaps la posición(latitud,longitud) sobre el Webview. Utilice el
+Codigo Propuesto como ayuda para desarrollar el desafío.

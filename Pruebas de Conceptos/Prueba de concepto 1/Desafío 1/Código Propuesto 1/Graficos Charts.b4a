@@ -1,0 +1,203 @@
+﻿Version=4.3
+IconFile=
+NumberOfModules=1
+Module1=Charts
+Build1=Default,b4a.example.graficos
+DoNotOverwriteManifest=False
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+NumberOfFiles=0
+NumberOfLibraries=1
+Library1=core
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Graficos Chart
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: True
+	#IncludeTitle: True
+#End Region
+
+Sub Process_Globals
+	Dim FontSize = 12 As Float
+	Dim MaxVal, MinVal, ScaleMin, ScaleMax, ScaleInterval As Double
+End Sub
+
+Sub Globals
+	Dim pnlPie, pnlLine, pnl2Lines, pnlBars, pnlStackedBars As Panel
+	Dim TabHost1 As TabHost
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	Activity.Title="Gráficos Chart"
+	TabHost1.Initialize("TabHost1")
+	Activity.AddView(TabHost1, 0, 0, 100%x, 100%y)
+	
+	'Funciones de Creacion de los Diferentes tipos de gráficos disponibles
+	CreatePieTab
+	CreateLineTab 
+	Create2LinesTab
+	CreateBarsTab
+	CreateStackedBarsTab
+End Sub
+Sub CreateBarsTab
+	'It is not possible to draw directly on the panel that acts as the Tab page.
+	'This panel doesn't have an absolute size as its size changes to fit the TabHost available size.
+	'For that reason we add a panel to a panel.
+	Dim p As Panel
+	p.Initialize("")
+	pnlBars.Initialize("pnlBars")
+	p.AddView(pnlBars, 0, 0, 95%x, 100%y - 100dip)
+	TabHost1.AddTab2("Bars Chart", p)
+	Dim BD As BarData	
+	BD.Initialize
+	BD.Target = pnlBars
+	BD.BarsWidth = 15dip
+	BD.Stacked = False
+	Charts.AddBarColor(BD, MakeTransparent(Colors.DarkGray, 230)) 'First bar color
+	Charts.AddBarColor(BD, MakeTransparent(Colors.Gray, 230)) 
+	Charts.AddBarColor(BD, MakeTransparent(Colors.LightGray, 230)) 
+	For i = 1 To 4
+		Charts.AddBarPoint(BD, 2005 + i, Array As Float(Rnd(0, 1000), Rnd(0, 1000), Rnd(0, 1000)))
+	Next
+	Dim G As Graph
+	G.Initialize
+	G.Title = "Bars Chart"
+	G.XAxis = "Year"
+	G.YAxis = "Values"
+	G.YStart = 0
+	G.YEnd = 1000
+	G.YInterval = 100
+	G.AxisColor = Colors.Black
+	Charts.DrawBarsChart(G, BD, Colors.White)
+End Sub
+
+Sub CreateStackedBarsTab
+	Dim p As Panel
+	p.Initialize("")
+	pnlStackedBars.Initialize("pnlStackedBars")
+	p.AddView(pnlStackedBars, 0, 0, 95%x, 100%y - 100dip)
+	TabHost1.AddTab2("Stacked Bars Chart", p)
+	Dim BD As BarData	
+	BD.Initialize
+	BD.Target = pnlStackedBars
+	BD.BarsWidth = 40dip
+	BD.Stacked = True 'Makes it a stacked bars chart
+	Charts.AddBarColor(BD, MakeTransparent(Colors.DarkGray, 230)) 'First bar color
+	Charts.AddBarColor(BD, MakeTransparent(Colors.Gray, 230)) 
+	Charts.AddBarColor(BD, MakeTransparent(Colors.LightGray, 230)) 
+	For i = 1 To 4
+		Charts.AddBarPoint(BD, 2005 + i, Array As Float(Rnd(0, 500), Rnd(0, 500), Rnd(0, 500)))
+	Next
+	Dim G As Graph
+	G.Initialize
+	G.Title = "Stacked Bars Chart"
+	G.XAxis = "Year"
+	G.YAxis = "Values"
+	G.YStart = 0
+	G.YEnd = 1000
+	G.YInterval = 100
+	G.AxisColor = Colors.Black
+	Charts.DrawBarsChart(G, BD, Colors.White)
+End Sub
+
+Sub MakeTransparent(Color As Int, Alpha As Int) As Int
+	Return Bit.AND(Color, Bit.OR(0x00FFFFFF, Bit.ShiftLeft(Alpha, 24)))
+End Sub
+Sub Create2LinesTab
+	Dim p As Panel
+	p.Initialize("")
+	pnl2Lines.Initialize("pnl2Lines")
+	p.AddView(pnl2Lines, 0, 0, 95%x, 100%y - 100dip)
+	TabHost1.AddTab2("2 Lines Chart", p)
+	
+	Dim LD As LineData
+	LD.Initialize
+	LD.Target = pnl2Lines
+	Charts.AddLineColor(LD, Colors.Red) 'First line color
+	Charts.AddLineColor(LD, Colors.Blue) 'Second line color
+	For i = 0 To 360 Step 10
+		'In this case we are adding an array of two values. One for each line.
+		'Make sure to create an array for each point. You cannot reuse a single array for all points.
+		Charts.AddLineMultiplePoints(LD, i, Array As Float(SinD(i), CosD(i)), i Mod 90 = 0)
+	Next
+	Dim G As Graph
+	G.Initialize
+	G.Title = "2 Lines Chart (Sine & Cosine)"
+	G.XAxis = "Degrees"
+	G.YAxis = "Values"
+	G.YStart = -1
+	G.YEnd = 1
+	G.YInterval = 0.2
+	G.AxisColor = Colors.Black
+	Charts.DrawLineChart(G, LD, Colors.White)
+End Sub
+
+Sub CreateLineTab
+	Dim p As Panel
+	p.Initialize("")
+	pnlLine.Initialize("pnlLine")
+	p.AddView(pnlLine, 0, 0, 95%x, 100%y - 100dip)
+	TabHost1.AddTab2("Line Chart", p)
+	Dim LD As LineData
+	LD.Initialize
+	LD.Target = pnlLine
+	Charts.AddLineColor(LD, Colors.Red)
+	For i = 0 To 360 Step 10
+		Charts.AddLinePoint(LD, i, SinD(i), i Mod 90 = 0)
+	Next
+	Dim G As Graph
+	G.Initialize
+	G.Title = "Line Chart (Sine)"
+	G.XAxis = "Degrees"
+	G.YAxis = "Values"
+	G.YStart = -1
+	G.YEnd = 1
+	G.YInterval = 0.2
+	G.AxisColor = Colors.Black
+	Charts.DrawLineChart(G, LD, Colors.White)
+End Sub
+
+Sub CreatePieTab
+	Dim p As Panel
+	p.Initialize("")
+	pnlPie.Initialize("pnlPie")
+	p.AddView(pnlPie, 0, 0, 100%x, 100%y - 100dip)
+	TabHost1.AddTab2("Pie Chart", p)
+	Dim PD As PieData
+	PD.Initialize
+	PD.Target = pnlPie 'Set the target view
+	'Add the items. The last parameter is the color. Passing 0 will make it a random color.
+	Charts.AddPieItem(PD, "Item #1", 120, 0)
+	Charts.AddPieItem(PD, "Item #2", 25, 0)
+	Charts.AddPieItem(PD, "Item #3", 50, 0)
+	Charts.AddPieItem(PD, "Item #4", 190, 0)
+	Charts.AddPieItem(PD, "Item #5", 350, 0)
+	PD.GapDegrees = 0 'Total size of gaps between slices. Set to 0 for no gaps.
+	PD.LegendBackColor = Colors.ARGB(150, 100, 100, 100) 'The background color of the legend bitmap.
+	Dim legend As Bitmap
+	'This call draws the pie.
+	'PD - The pie data
+	'Colors.Gray - The view's background color
+	'True - Create a legend bitmap.
+	legend = Charts.DrawPie(PD, Colors.Gray, True)
+	Dim ImageView1 As ImageView
+	ImageView1.Initialize("")
+	ImageView1.SetBackgroundImage(legend)
+	pnlPie.AddView(ImageView1, 10dip, 10dip, legend.Width, legend.Height)
+	
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+

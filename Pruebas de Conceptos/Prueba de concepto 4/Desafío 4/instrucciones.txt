@@ -1,0 +1,4 @@
+- Implementar reconocimiento de voz al momento de seleccionar la opción "Texto" del spinnerTipo para ingresar un comentario de texto
+a travéz de la voz del usuario. Utilice el ejemplo del Codigo Propuesto 1.
+- Implementar despliegue del Comentario y reproduccion de Voz al mantener presionado un item de la lista del lisviewNotas de la primera pestaña.
+Puede utilizar el ejemplo del Codigo propuesto 2 en el caso de la Voz.

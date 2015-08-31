@@ -1,0 +1,129 @@
+﻿Version=3.82
+IconFile=
+NumberOfModules=0
+Build1=Default,mediaplayer.mio
+DoNotOverwriteManifest=False
+ManifestCode=
+NumberOfFiles=1
+File1=layout.bal
+NumberOfLibraries=1
+Library1=core
+@EndOfDesignText@
+#Region Module Attributes
+	#FullScreen: False
+	#IncludeTitle: True
+	#ApplicationLabel: mediaplayer
+	#VersionCode: 1
+	#VersionName: 
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+'Activity module
+Sub Process_Globals
+
+    Dim Timer1 As Timer
+	Dim MP As MediaPlayer
+End Sub
+
+Sub Globals
+	Dim PAUSA As Boolean
+	Dim ToggleButton1 As ToggleButton
+	Dim Button1, Button2, Button3 As Button
+	Dim SeekBar1, SeekBar2 As SeekBar
+	Dim Label2, Label3 As Label
+	
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	Activity.LoadLayout("Layout") ' Cargamos el Designer
+	
+	MP.Initialize
+    MP.Load(File.DirAssets, "test_cbr.mp3")
+	
+	Timer1.Initialize("Timer1", 500) ' 1000 = 1 segundo
+	Timer1.Enabled = True
+End Sub
+Sub Button1_Click
+	If Not(MP.IsPlaying) Then
+		If PAUSA Then
+			MP.play
+			PAUSA=False
+			
+			' Duración del archivo. La duración está en milisegundos, así que la paso a minutos:segundos
+			Dim minutos, segundos As Int
+			segundos = Round(MP.duration / 1000)
+			minutos = Floor(segundos / 60) Mod 60
+			segundos = segundos Mod 60
+	 
+			Label2.Text = "Duración  " & NumberFormat(minutos,1,0) & ": " & NumberFormat(segundos,2,0)
+		Else
+			
+			MP.Load(File.DirAssets, "test_cbr.mp3")
+			MP.play
+		
+			' Duración del archivo. La duración está en milisegundos, así que la paso a minutos:segundos
+			Dim minutos, segundos As Int
+			segundos = Round(MP.duration / 1000)
+			minutos = Floor(segundos / 60) Mod 60
+			segundos = segundos Mod 60
+		 
+			Label2.Text = "Duración  " & NumberFormat(minutos,1,0) & ": " & NumberFormat(segundos,2,0)
+		End If
+	End If
+End Sub
+Sub Button2_Click
+	If MP.IsPlaying Then
+		MP.pause
+		PAUSA=True
+	End If
+End Sub
+Sub Button3_Click
+    ' Si hacemos un stop, deberemos de volver a cargar la canción
+	MP.Stop
+	PAUSA=False
+	
+	Label3.Text = "Posición actual  0:00"
+	SeekBar2.Value=0
+End Sub
+Sub SeekBar1_ValueChanged (Value As Int, UserChanged As Boolean)
+    ' Volumen del sonido
+    ' Se podría haber puesto un SeekBar1 para el canal derecho y otro SeekBar2 para el canal izquierdo
+	MP.SetVolume(SeekBar1.Value/100, SeekBar1.Value/100)
+	' He dividido entre 100, porque el valor del volumen debe estar comprendido entre 0 y 1
+	' Y el valor Max del SeekBar1 lo he establecido en 100 en el Designer
+End Sub
+
+Sub ToggleButton1_CheckedChange(Checked As Boolean)
+	' Mediante un ToggleButton1 podemos hacer que se repita el sonido (o que no se repita)
+	If Checked = True Then
+		MP.Looping = True
+	Else 
+		MP.Looping = False
+	End If
+End Sub
+
+Sub Timer1_tick
+	' En la SeekBar2 podemos observar en qué posición se encuentra  el sonido.
+	If MP.IsPlaying Then
+		
+		SeekBar2.Value=MP.position / MP.duration * 100
+		' Posición actual del archivo. Está en milisegundos, así que la paso a minutos:segundos
+		Dim minutes, segundes As Int
+		segundes = Round(MP.position / 1000)
+		minutes = Floor(segundes / 60) Mod 60
+		segundes = segundes Mod 60
+	 
+		Label3.Text = "Posición actual  " & NumberFormat(minutes,1,0) & ": " & NumberFormat(segundes,2,0)
+
+	End If
+End Sub
+
+Sub SeekBar2_ValueChanged (Value As Int, UserChanged As Boolean)
+	' Posiciona en un punto exacto de la canción
+	If UserChanged = False Then Return
+	MP.position = Value / 100 * MP.duration
+	If MP.IsPlaying Then
+		MP.Play
+	End If
+End Sub

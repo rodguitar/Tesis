@@ -1,0 +1,98 @@
+﻿Version=4.3
+IconFile=
+NumberOfModules=1
+Module1=Servicio
+Build1=Default,b4a.example
+DoNotOverwriteManifest=False
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~SetApplicationAttribute(android:theme, "@android:style/Theme.Holo")~\n~'End of default text.~\n~
+NumberOfFiles=1
+File1=Main.bal
+NumberOfLibraries=4
+Library1=core
+Library2=ioio
+Library3=ioiolib
+Library4=audio
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: IOIO - Sensor Flexible
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: False
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+	Dim YOYO As IOIO
+	Dim pin33_SensorFuerza As AnalogInput
+	Dim pin11_Zumbador As PwmOutput
+	Dim ValorAnalogoSensorF As Float
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+
+	Private LabelValorAnalogo As Label
+
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	Activity.LoadLayout("Main")
+	Activity.AddMenuItem("Iniciar Servicio","StartServicio")
+	Activity.AddMenuItem("Detener Servicio","StopServicio")
+	Activity.OpenMenu
+	
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+Sub IOIOConnect
+	Try
+		YOYO.Initialize
+		YOYO.WaitForConnect
+		pin33_SensorFuerza= YOYO.OpenAnalogInput(33)
+		pin11_Zumbador= YOYO.OpenPwmOutput(11,pin11_Zumbador.OP_NORMAL,2000)
+	Catch
+		Log("YOYO Exception: "& LastException.Message)
+	End Try
+End Sub
+
+Sub IOIOClose
+	Try
+		pin33_SensorFuerza.Close
+		YOYO.Disconnect
+		YOYO.WaitForDisconnect	
+	Catch
+		Log("YOYO Close Exception: "& LastException.Message)
+	End Try	
+End Sub
+
+Sub ActualizaLabelValor
+
+	LabelValorAnalogo.Text = ValorAnalogoSensorF
+End Sub
+
+Sub StartServicio_click
+	IOIOConnect
+	StartService(Servicio)
+End Sub
+
+Sub StopServicio_click
+	IOIOClose
+	StopService(Servicio)
+End Sub

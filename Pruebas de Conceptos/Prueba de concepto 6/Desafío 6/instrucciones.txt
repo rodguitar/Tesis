@@ -1,0 +1,5 @@
+- Crear una aplicación e implementar un layout con un objeto SeekBar desde el Designer, el cual permite 
+arrastrar un nivel para aumentar y disminuir cierto valor. Luego crear un objeto SpiMaster en el Activity para controlar 
+el potenciómetro digital y variar la intensidad de corriente que llega a un LED (utilice solo un color del LED RGB).
+Finalmente integrarlo al SeekBar para variar la luz del LED con el dedo en tiempo de ejecución (El Seekbar posee un Evento 
+para saber cuando el usuario a cambiado el valor).

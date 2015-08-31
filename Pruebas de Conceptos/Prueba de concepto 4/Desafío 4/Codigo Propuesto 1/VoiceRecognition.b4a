@@ -1,0 +1,57 @@
+﻿Version=4.3
+IconFile=
+NumberOfModules=0
+Build1=Default,anywheresoftware.b4a.samples.voicerecognition
+DoNotOverwriteManifest=False
+ManifestCode=
+NumberOfFiles=1
+File1=1.bal
+NumberOfLibraries=3
+Library1=core
+Library2=phone
+Library3=tts
+@EndOfDesignText@
+#Region Module Attributes
+	#FullScreen: False
+	#IncludeTitle: True
+	#ApplicationLabel: VoiceRecognition
+	#VersionCode: 1
+	#VersionName: 
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: True
+#End Region
+
+'Activity module
+Sub Process_Globals
+	Dim VR As VoiceRecognition
+	Dim TTS1 As TTS
+End Sub
+
+Sub Globals
+
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	If FirstTime Then
+		VR.Initialize("VR")
+		TTS1.Initialize("TTS1")
+	End If
+	Activity.LoadLayout("1")
+	If VR.IsSupported Then
+		ToastMessageShow("El dispositivo soporta Reconocimiento de voz.", False)
+	Else
+		ToastMessageShow("El dispositivo NO soporta Reconocimiento de voz.", True)
+	End If
+	VR.Prompt = "Habla ahora!"
+End Sub
+
+Sub Button1_Click
+	VR.Listen 
+End Sub
+
+Sub VR_Result (Success As Boolean, Texts As List)
+	If Success = True Then
+		ToastMessageShow(Texts.Get(0), True)
+		TTS1.Speak(Texts.Get(0), True)
+	End If
+End Sub

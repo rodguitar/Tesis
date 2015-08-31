@@ -1,0 +1,338 @@
+﻿Version=4.3
+IconFile=
+NumberOfModules=2
+Module1=Charts
+Module2=DBApp
+Build1=Default,b4a.example
+DoNotOverwriteManifest=False
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+NumberOfFiles=2
+File1=layout1.bal
+File2=layoutBusca.bal
+NumberOfLibraries=5
+Library1=core
+Library2=gesturedetector
+Library3=sql
+Library4=dialogs
+Library5=phone
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Desafio 3
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: portrait
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: true
+	#IncludeTitle: True
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+	Dim FontSize = 12 As Float
+	Dim MaxVal, MinVal, ScaleMin, ScaleMax, ScaleInterval As Double
+	Dim Mi_acelerometro As PhoneAccelerometer
+	Dim RelojAcelerometro As Timer
+	'Type Ingreso (Titulo As String, Nota As Double, Tipo As String) 
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+
+	Dim GD As GestureDetector
+	Dim pnlPie As Panel
+	Dim TabHost1 As TabHost
+	
+	Dim ImageView1 As ImageView
+	Dim legend As Bitmap
+	
+	Private SpinnerNota As Spinner
+	Private ListViewNotas As ListView
+	
+	Private EditTextTitulo As EditText
+
+	Private SpinnerTipo As Spinner
+	
+	Dim Mi_Cursor As Cursor' cursor para almacenar y recorrer una respuesta de un SELECT
+	Dim Mi_CursorBusca As Cursor
+	Private EditTextBusca As EditText
+	Private ListViewResultados As ListView
+	
+	Dim PAUSA As Boolean
+	
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	If FirstTime=True Then 
+		DBApp.CreaBD
+	End If
+	GD.SetOnGestureListener(Activity, "Gesture")
+	
+	TabHost1.Initialize("TabHost1")
+	
+	'Activity.LoadLayout("Layout1")
+	Activity.AddView(TabHost1, 0, 0, 100%x, 100%y)
+	TabHost1.AddTab("Ingreso de Reseñas","Layout1")
+	Activity.Title="Desafío 1"
+	
+	LLenaSpinnerNota
+	SpinnerTipo.Add("Solo Título")
+	SpinnerTipo.Add("Texto")
+	SpinnerTipo.Add("Voz")
+	
+	LLenaListview
+	
+	TabGraficoPie
+	addValorGrafico(CalculaEstadistica)
+	TabBuscar
+	
+	Mi_acelerometro.StartListening("Sensor")
+	RelojAcelerometro.Initialize("Intervalo",100)
+	RelojAcelerometro.Enabled=True
+End Sub
+
+Sub Activity_Resume
+	Mi_acelerometro.StartListening("Sensor")
+	RelojAcelerometro.Enabled=True
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+	Mi_acelerometro.StopListening
+	RelojAcelerometro.Enabled=False
+	
+End Sub
+
+Sub TabGraficoPie
+	Dim p As Panel
+	p.Initialize("")
+	pnlPie.Initialize("pnlPie")
+	p.AddView(pnlPie, 0, 0, 100%x, 100%y - 100dip)
+	TabHost1.AddTab2("Resumen", p)
+	
+End Sub
+
+Sub TabBuscar
+	TabHost1.AddTab("Buscador","layoutBusca")
+End Sub
+
+Sub addValorGrafico(datos As Map)
+	'Add the items. The last parameter is the color. Passing 0 will make it a random color.
+	Dim PD As PieData 
+	PD.Initialize
+	PD.Target = pnlPie 'Set the target view
+	
+	For Each k As String In datos.Keys
+		Charts.AddPieItem(PD, k, datos.Get(k), 0)
+	Next
+	
+	PD.GapDegrees = 0 'Total size of gaps between slices. Set to 0 for no gaps.
+	PD.LegendBackColor = Colors.ARGB(150, 100, 100, 100) 'The background color of the legend bitmap.
+	
+	'This call draws the pie.
+	'PD - The pie data
+	'Colors.Gray - The view's background color
+	'True - Create a legend bitmap.
+	legend = Charts.DrawPie(PD, Colors.Gray, True)
+	
+	If ImageView1.IsInitialized=False Then ImageView1.Initialize("")
+	ImageView1.RemoveView
+	ImageView1.SetBackgroundImage(legend)
+	
+	pnlPie.AddView(ImageView1, 10dip, 10dip, legend.Width, legend.Height)
+End Sub
+
+Sub CalculaEstadistica As Map
+
+	Dim Mapa As Map
+	Dim sumaST As Int
+	Dim sumaT As Int
+	Dim sumaV As Int
+	
+	If Mi_Cursor.RowCount>0 Then
+		
+		For i=0 To Mi_Cursor.RowCount-1
+			
+			Mi_Cursor.Position=i
+			
+			Select Mi_Cursor.GetString("tipo")
+			
+				Case "Solo Título" 
+					sumaST=sumaST+1 
+				
+				Case "Texto" 
+					sumaT=sumaT+1
+				
+				Case "Voz"
+					sumaV=sumaV+1
+				
+				
+			End Select
+		Next
+		
+	End If
+		
+	If Mapa.IsInitialized=False Then Mapa.Initialize
+	Mapa.Put("Solo Título",sumaST)
+	Mapa.Put("Texto",sumaT)
+	Mapa.Put("Voz",sumaV)
+
+	sumaST = 0
+	sumaT = 0
+	sumaV = 0
+	
+	Return Mapa
+End Sub
+
+Sub LLenaSpinnerNota
+	Dim I As Double=7.0 
+	Do While I>=1.0
+		SpinnerNota.add(Round2(I,1))
+		I=I-0.1
+	Loop
+End Sub
+
+Sub LLenaListview
+	'Cursor que contiene todos los datos de la tabla
+	Mi_Cursor=DBApp.Mi_BD.ExecQuery("SELECT titulo, nota, tipo FROM REVIEW")
+
+	ListViewNotas.Clear
+	EditTextTitulo.Text=""
+	
+	If Mi_Cursor.RowCount>0 Then
+	
+		For i=0 To Mi_Cursor.RowCount-1
+		
+			Mi_Cursor.Position=i
+			ListViewNotas.AddTwoLines(Mi_Cursor.GetString("nota"),Mi_Cursor.GetString("titulo") & " ("& Mi_Cursor.GetString("tipo") &")")
+		
+		Next
+	
+	End If
+	
+End Sub
+
+Sub ButtonIngresar_Click
+
+	
+	If EditTextTitulo.Text.Trim="" Then
+		Msgbox("Falta ingresar el Título","Error")
+	Else
+		
+		'Insercion de los datos en la tabla de reseñas REVIEW de la BD.
+		DBApp.InsertaReview(EditTextTitulo.Text,SpinnerNota.SelectedItem,SpinnerTipo.SelectedItem)
+		
+		LLenaListview
+		
+		addValorGrafico(CalculaEstadistica)
+		
+		Msgbox("Has ingresado tu Reseña correctamente","Exito")
+	End If
+	
+End Sub
+
+Sub Gesture_onFling(velocityX As Float, velocityY As Float, MotionEvent1 As Object, MotionEvent2 As Object)
+	Log("   onFling velocityX = " & velocityX & ", velocityY = " & velocityY & ", ev1 = " & MotionEvent1 & ", ev2 = " & MotionEvent2)
+	If velocityX<0 Then
+		TabHost1.CurrentTab=(TabHost1.CurrentTab+1) Mod TabHost1.TabCount
+	Else
+		If TabHost1.CurrentTab=0 Then 
+			TabHost1.CurrentTab=TabHost1.TabCount-1
+		Else
+			TabHost1.CurrentTab=(TabHost1.CurrentTab-1) Mod TabHost1.TabCount
+		End If
+	
+	End If
+	
+End Sub
+
+Sub EditTextBusca_TextChanged (Old As String, New As String)
+
+	Mi_CursorBusca=DBApp.Mi_BD.ExecQuery("SELECT id_review, titulo, nota, tipo FROM REVIEW WHERE titulo LIKE '"& New &"%' ")
+
+	ListViewResultados.Clear
+
+	If Mi_CursorBusca.RowCount>0 Then
+
+		For i=0 To Mi_CursorBusca.RowCount-1
+	
+			Mi_CursorBusca.Position=i
+			ListViewResultados.AddTwoLines(Mi_CursorBusca.GetString("id_review"),Mi_CursorBusca.GetString("titulo") & " ("&Mi_CursorBusca.GetString("nota")&", "& Mi_CursorBusca.GetString("tipo") &")")
+	
+		Next
+
+	End If
+	
+End Sub
+Sub ListViewResultados_ItemLongClick (Position As Int, Value As Object)
+
+	Dim mensaje As Int
+    mensaje = Msgbox2("Opciones","","Editar","Cancelar","Eliminar",Null)
+    Select mensaje
+    	Case DialogResponse.POSITIVE 
+			Log("Se pulsó Editar")
+			
+			InputDialogTitulo(ListViewResultados.GetItem(Position))
+		
+		Case DialogResponse.NEGATIVE
+			DBApp.EliminaReview(ListViewResultados.GetItem(Position))
+			
+		Case DialogResponse.CANCEL
+			Log("Se pulsó Cancelar")
+			
+    End Select
+	
+
+End Sub
+
+Sub InputDialogTitulo(posicion As Int)
+	Dim Id As InputDialog
+    Id.Hint = "Escribe Aquí"
+    Id.HintColor = Colors.ARGB(196, 255, 140, 0)
+	
+    Dim ret As Int = Id.Show("Escribe el Título Nuevo", "Edita Título", "Cambiar", "Cancelar","", Null)
+	
+	If ret = -1 Then
+		DBApp.EditaReview(Id.Input,posicion)
+    	'ToastMessageShow("Has pulsado: Cambiar", False)    
+    End If
+
+    If ret = -3 Then 
+    'Cancelar
+    End If
+End Sub
+
+Sub Sensor_AccelerometerChanged (X As Float, Y As Float, Z As Float)
+
+	If PAUSA= True Then	
+		If X>12 OR X<-12 Then 
+			TabHost1.CurrentTab=(TabHost1.CurrentTab+1) Mod TabHost1.TabCount
+			'ToastMessageShow("X= "&X,False)
+			RelojAcelerometro.Interval=800
+		Else 
+			If Y>12 OR Y<-12 Then
+				TabHost1.CurrentTab=(TabHost1.CurrentTab+1) Mod TabHost1.TabCount
+				'ToastMessageShow("Y= "&Y,False)
+				RelojAcelerometro.Interval=800
+			Else
+				If Z>12 OR Z<-12 Then 
+					TabHost1.CurrentTab=(TabHost1.CurrentTab+1) Mod TabHost1.TabCount
+					'ToastMessageShow("Z= "&Z,False)
+					RelojAcelerometro.Interval=800
+				End If
+				
+			End If
+		End If
+	End If
+	PAUSA=False
+End Sub
+
+Sub Intervalo_Tick
+	PAUSA=True
+	RelojAcelerometro.Interval=100
+End Sub

@@ -1,0 +1,100 @@
+﻿Version=4.3
+IconFile=
+NumberOfModules=0
+Build1=Default,b4a.example
+DoNotOverwriteManifest=False
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+NumberOfFiles=1
+File1=Principal.bal
+NumberOfLibraries=4
+Library1=core
+Library2=ioio
+Library3=ioiolib
+Library4=customprogressdialog
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: LED RGB PWM - IOIO
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: False
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+
+	Dim YOYO As IOIO
+	
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+	Dim pin11_Azul As PwmOutput
+	Dim pin12_Verde As PwmOutput
+	Dim pin13_Rojo As PwmOutput
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	Activity.LoadLayout("Principal")
+
+	IOIOConnect
+	
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+	If UserClosed Then
+		IOIOClose
+		ExitApplication
+	End If
+	
+End Sub
+
+Sub IOIOConnect
+	Try
+		YOYO.Initialize
+		YOYO.WaitForConnect
+		pin11_Azul= YOYO.OpenPwmOutput(11,pin11_Azul.OP_NORMAL,100)
+		pin12_Verde= YOYO.OpenPwmOutput(12,pin12_Verde.OP_NORMAL,100)
+		pin13_Rojo= YOYO.OpenPwmOutput(13,pin13_Rojo.OP_NORMAL,100)
+			
+	Catch
+		Log("YOYO Exception: "& LastException.Message)
+	End Try
+End Sub
+
+Sub IOIOClose
+	Try
+		pin11_Azul.Close
+		pin12_Verde.Close
+		pin13_Rojo.Close
+
+		YOYO.Disconnect
+		YOYO.WaitForDisconnect
+		
+	Catch
+		Log("YOYO Close Exception: "& LastException.Message)
+	End Try	
+End Sub
+
+Sub SeekBarAzul_ValueChanged (Value As Int, UserChanged As Boolean)
+	pin11_Azul.DutyCycle=Value/100
+End Sub
+Sub SeekBarVerde_ValueChanged (Value As Int, UserChanged As Boolean)
+	pin12_Verde.DutyCycle=Value/100
+End Sub
+Sub SeekBarRojo_ValueChanged (Value As Int, UserChanged As Boolean)
+	pin13_Rojo.DutyCycle=Value/100
+End Sub

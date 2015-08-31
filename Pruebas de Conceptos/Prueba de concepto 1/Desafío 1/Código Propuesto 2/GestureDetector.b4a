@@ -1,0 +1,145 @@
+﻿Version=3.82
+IconFile=
+NumberOfModules=0
+Build1=Default,flm.b4a.gesturedemo
+DoNotOverwriteManifest=False
+ManifestCode=
+NumberOfFiles=0
+NumberOfLibraries=2
+Library1=core
+Library2=gesturedetector
+@EndOfDesignText@
+#Region Module Attributes
+	#FullScreen: False
+	#IncludeTitle: True
+	#ApplicationLabel: Gesture detector demo
+	#VersionCode: 1
+	#VersionName: 
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+'Activity module
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+End Sub
+
+Sub Globals
+	Dim GD As GestureDetector
+	Dim pnlTwoFingers As Panel
+	Dim C As Canvas
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	GD.SetOnGestureListener(Activity, "Gesture")
+
+	Dim lbl As Label
+	lbl.Initialize("")
+	lbl.Text = "Touch the screen, double-tap it, move your finger, and see the result in the Log. Try also to pinch or rotate two fingers together."
+	lbl.TextColor = Colors.White
+	lbl.TextSize = 18
+	Activity.AddView(lbl, 15dip, 15dip, 100%x-30dip, 100%y-30dip)
+	
+	pnlTwoFingers.Initialize("")
+	pnlTwoFingers.Color = Colors.Green
+	pnlTwoFingers.Visible = False
+	Activity.AddView(pnlTwoFingers, 25%x, 25%y, 50%x, 50%y)
+	
+	Dim chbx As CheckBox
+	chbx.Initialize("Chbx")
+	chbx.Checked = False
+	chbx.Text = "Disable long press to improve scrolling detection"
+	chbx.TextColor = Colors.White
+	chbx.TextSize = 18
+	Activity.AddView(chbx, 15dip, 100%y - 60dip, 100%x-30dip, 45dip)
+End Sub
+
+Sub Activity_Resume
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+End Sub
+
+Sub ResizePanel(MotionEvent As Object, Color As Int)
+	Dim Left, Top, Width, Height As Int
+	If GD.getX(MotionEvent, 0) > GD.getX(MotionEvent, 1) Then
+		Left = GD.getX(MotionEvent, 1)
+	Else
+		Left = GD.getX(MotionEvent, 0)
+	End If
+	If GD.getY(MotionEvent, 0) > GD.getY(MotionEvent, 1) Then
+		Top = GD.getY(MotionEvent, 1)
+	Else
+		Top = GD.getY(MotionEvent, 0)
+	End If
+	Width = Abs(GD.getX(MotionEvent, 0) - GD.getX(MotionEvent, 1))
+	Height = Abs(GD.getY(MotionEvent, 0) - GD.getY(MotionEvent, 1))
+	pnlTwoFingers.SetLayout(Left, Top, Width, Height)
+	pnlTwoFingers.Color = Color
+End Sub
+
+Sub Gesture_onTouch(Action As Int, X As Float, Y As Float, MotionEvent As Object) As Boolean
+	Log("onTouch action=" & Action & ", x=" & X & ", y=" & Y & ", ev=" & MotionEvent)
+	Return True 'True = Handle this touch event, False = Ignore it
+End Sub
+Sub Gesture_onDown(X As Float, Y As Float, MotionEvent As Object)
+	Log("   onDown x = " & X & ", y = " & Y & ", ev = " & MotionEvent)
+	Log("      pressure = " & GD.getPressure(MotionEvent, 0))
+	Log("      size = " & GD.getSize(MotionEvent, 0))
+End Sub
+Sub Gesture_onPointerDown(ptrIndex As Int, PID As Int, MotionEvent As Object)
+	Log("onPointerDown ptrindex=" & ptrIndex & ", pid=" & PID & ", ev=" & MotionEvent)
+	ResizePanel(MotionEvent, Colors.White)
+	pnlTwoFingers.Visible = True
+End Sub
+Sub Gesture_onPointerUp(ptrIndex As Int, PID As Int, MotionEvent As Object)
+	Log("onPointerUp ptrindex=" & ptrIndex & ", pid=" & PID & ", ev=" & MotionEvent)
+	pnlTwoFingers.Visible = False
+End Sub
+Sub Gesture_onPinchOpen(NewDistance As Float, PreviousDistance As Float, MotionEvent As Object)
+	Log("   onPinchOpen dist=" & NewDistance & ", prevdist=" & PreviousDistance & ", ev=" & MotionEvent)
+	ResizePanel(MotionEvent, Colors.Green)
+End Sub
+Sub Gesture_onPinchClose(NewDistance As Float, PreviousDistance As Float, MotionEvent As Object)
+	Log("   onPinchClose dist=" & NewDistance & ", prevdist=" & PreviousDistance & ", ev=" & MotionEvent)
+	ResizePanel(MotionEvent, Colors.Red)
+End Sub
+Sub Gesture_onRotation(Degrees As Double, MotionEvent As Object)
+	Log("   onRotation degrees=" & Degrees & ", ev=" & MotionEvent)
+	If pnlTwoFingers.Width > 0 AND pnlTwoFingers.Height > 0 Then
+		C.Initialize(pnlTwoFingers)
+		C.DrawTextRotated("Angle=" & Round(Degrees) & "°", pnlTwoFingers.Width / 2, pnlTwoFingers.Height / 2, Typeface.DEFAULT_BOLD, 16, Colors.Black, "CENTER", Degrees)
+	End If
+End Sub
+Sub Gesture_onSingleTapUp(X As Float, Y As Float, MotionEvent As Object)
+	Log("   onSingleTapUp x = " & X & ", y = " & Y & ", ev = " & MotionEvent)
+End Sub
+Sub Gesture_onSingleTapConfirmed(X As Float, Y As Float, MotionEvent As Object)
+	Log("   onSingleTapConfirmed x = " & X & ", y = " & Y & ", ev = " & MotionEvent)
+	ToastMessageShow("Single-Tap", False)
+End Sub
+Sub Gesture_onDoubleTap(X As Float, Y As Float, MotionEvent As Object)
+	Log("   onDoubleTap x = " & X & ", y = " & Y & ", ev = " & MotionEvent)
+	ToastMessageShow("Double-Tap", False)
+End Sub
+Sub Gesture_onShowPress(X As Float, Y As Float, MotionEvent As Object)
+	Log("   onShowPress x=" & X & ", y=" & Y & ", ev=" & MotionEvent)
+End Sub
+Sub Gesture_onLongPress(X As Float, Y As Float, MotionEvent As Object)
+	Log("   onLongPress x=" & X & ", y=" & Y & ", ev=" & MotionEvent)
+	ToastMessageShow("Long Press", False)
+End Sub
+Sub Gesture_onScroll(distanceX As Float, distanceY As Float, MotionEvent1 As Object, MotionEvent2 As Object)
+	Log("   onScroll distanceX = " & distanceX & ", distanceY = " & distanceY & ", ev1 = " & MotionEvent1 & ", ev2=" & MotionEvent2)
+	Log("      X1, Y1 = " & GD.getX(MotionEvent1, 0) & ", " & GD.getY(MotionEvent1, 0))
+	Log("      X2, Y2 = " & GD.getX(MotionEvent2, 0) & ", " & GD.getY(MotionEvent2, 0))
+End Sub
+Sub Gesture_onFling(velocityX As Float, velocityY As Float, MotionEvent1 As Object, MotionEvent2 As Object)
+	Log("   onFling velocityX = " & velocityX & ", velocityY = " & velocityY & ", ev1 = " & MotionEvent1 & ", ev2 = " & MotionEvent2)
+	ToastMessageShow("Fling", False)
+End Sub
+
+Sub Chbx_CheckedChange(Checked As Boolean)
+	GD.EnableLongPress(Not(Checked))
+End Sub

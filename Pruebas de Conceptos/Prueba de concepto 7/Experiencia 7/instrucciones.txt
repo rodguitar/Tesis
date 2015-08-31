@@ -1,0 +1,4 @@
+-Enseñar el "Codigo Ejemplo" paso a paso para controlar el Fotoresistor.
+-Crear una aplicación que integre el potenciómetro digital del desafío anterior y el fotoresistor, de tal manera
+de el potenciómetro varíe la luz del LED dependiendo de la intensidad de luz capturada desde el fotoresistor. El objetivo
+es que a medida que haya menos luz en el ambiente el LED aumente su luminosidad y viceversa.

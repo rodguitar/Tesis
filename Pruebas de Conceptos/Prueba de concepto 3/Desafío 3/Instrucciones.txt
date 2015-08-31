@@ -1,0 +1,1 @@
+- Implementar cambio de pestañas del TabHost ante un movimiento brusco del celular mediante el Acelerómetro.

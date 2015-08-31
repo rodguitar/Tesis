@@ -1,0 +1,90 @@
+﻿Version=5.02
+NumberOfModules=0
+Build1=Default,b4a.example
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~SetApplicationAttribute(android:theme, "@android:style/Theme.Holo")~\n~'End of default text.~\n~
+IconFile=
+NumberOfFiles=1
+File1=Layout1.bal
+NumberOfLibraries=3
+Library1=core
+Library2=ioio
+Library3=ioiolib
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: IOIO-LED
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: True
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+	Dim YOYO As IOIO
+		
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+
+	Private ImageViewLED As ImageView
+	Dim LedEncendido As Bitmap = LoadBitmap(File.DirAssets, "encendida.png")
+	Dim LedApagado As Bitmap = LoadBitmap(File.DirAssets, "apagada.png")
+	
+	Dim pin1_led As DigitalOutput
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	Activity.LoadLayout("Layout1")
+	IOIOConnect
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+	If UserClosed Then
+		IOIOClose
+		ExitApplication
+	End If
+End Sub
+
+Sub IOIOConnect
+	Try
+		YOYO.Initialize
+		YOYO.WaitForConnect
+		pin1_led= YOYO.OpenDigitalOutput(1,pin1_led.OP_NORMAL,False)
+		
+	Catch
+		Log("YOYO Exception: "& LastException.Message)
+	End Try
+End Sub
+
+Sub IOIOClose
+	Try
+		pin1_led.Close
+		YOYO.Disconnect
+		YOYO.WaitForDisconnect	
+	Catch
+		Log("YOYO Close Exception: "& LastException.Message)
+	End Try	
+End Sub
+
+Sub ButtonEncender_Click
+	ImageViewLED.Bitmap=LedEncendido
+	pin1_led.Write(True)
+End Sub
+Sub ButtonApagar_Click
+	ImageViewLED.Bitmap=LedApagado
+	pin1_led.Write(False)
+End Sub

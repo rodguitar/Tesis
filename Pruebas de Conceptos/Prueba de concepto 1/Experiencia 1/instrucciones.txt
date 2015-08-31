@@ -1,0 +1,22 @@
+-Ingresar al Codigo Propuesto para utilizarlo durante esta prueba de concepto.
+
+-Insertar los objetos correspondientes en el Designer: 2 Labels, 1 EditText, 2 Spinners, y 1 Button(en el Panel1).
+
+-Crear un nuevo tipo de objeto de nombre "INGRESO". Este nuevo tipo de objeto tendrá los campos correspondientes a lo que
+ingresará el usuario y servirá para almacenar estos datos (campos: titulo, nota, tipo). (Se hace con Type).
+
+-Crear una lista de tipo List, en la cual más adelante se almacenará cada objeto de tipo INGRESO.
+
+-Rellenar los Spinners con opciones( notas:1 a 7 y tipos:solo titulo, texto, voz.).
+
+-Crear un Evento para que se gatille al presionar el Button(Generate->Click sobre el Button en el Designer).
+
+-En el interior del Evento, verificar que se haya ingresado un Título en el EditText al presionar el Button. 
+De lo contrario desplegar un mensaje de error al usuario (función MsgBox()).
+
+-Si todo está correcto, se deben almacenar los datos del usuario al objeto de tipo INGRESO creado anteriormente.
+
+-Luego este objeto es almacenado en la lista de tipo List.
+
+-Finalmente ingresar dos datos del usuario al ListView (función .addTwoLines(PrimerDato,SegundoDato)) 
+y desplegar un mensaje de éxito.

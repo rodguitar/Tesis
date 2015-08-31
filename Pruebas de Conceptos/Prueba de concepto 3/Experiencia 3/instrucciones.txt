@@ -1,0 +1,5 @@
+- Activar la librería "Phone".
+- Se debe crear una variable como tipo "PhoneAccelerometer" en Process_Globals.
+- Iniciar el acelerómetro en el Activity_Create con el metodo StartListening("NombreEvento")
+- Luego crear un Sub con el nombre "NombreEvento_AccelerometerChanged(X As Float, Y As Float, Z As Float)", el cual
+servirá para detectar y obtener cualquier aceleración en los variables X,Y y Z.

@@ -1,0 +1,7 @@
+- Crear una tercera pestaña con TabHost para realizar un buscador de reseñas en la BD.
+- Diseñe e implemente un esquema a traves del Designer (Designer->File->new) para realizar este buscador.
+- Luego de tener implementado el buscador, se debe poder eliminar(toda la tupla) o editar(titulo) la reseña encontrada
+como resultado de la busqueda. Puede utilizar el Codigo Propuesto en el caso de editar un titulo de la reseña seleccionada.
+- Finalmente, integre la funcionalidad de desplegar en el Listview del Main todas las reseñas de la BD, cada vez que se inicia
+la aplicación y cada vez que se presione el Button de ingresar reseñas.
+(A través del objeto "Cursor" puede almacenar varias tuplas de un Select).
